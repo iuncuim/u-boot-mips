@@ -9,3 +9,5 @@ u-boot
 u-boot.map
 u-boot.srec
 uboot.bin
+.config.old
+lxdialog
