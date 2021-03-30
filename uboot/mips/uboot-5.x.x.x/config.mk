@@ -773,7 +773,11 @@ CFLAGS += -Wno-unused -Wno-unused-variable -Wno-unused-but-set-variable
 AFLAGS_DEBUG := -Wa,-gstabs
 AFLAGS := $(AFLAGS_DEBUG) -D__ASSEMBLY__ $(CPPFLAGS)
 ifeq ($(CONFIG_TINY_UBOOT), y)
-CONFIG_CROSS_COMPILER_PATH = /opt/buildroot-gcc463/usr/bin
+ifeq ($(MT7621_MP), y)
+CONFIG_CROSS_COMPILER_PATH ?= $(TOPDIR)/../tools/mips-2012.03/bin
+else
+CONFIG_CROSS_COMPILER_PATH ?= $(TOPDIR)/../tools/buildroot-gcc342/bin
+endif
 CFLAGS += -fpic -G0 -mips16 -fomit-frame-pointer -mno-long-calls -DCONFIG_TINY_UBOOT -DCONFIG_MIPS16
 AFLAGS += -fpic -mabicalls
 endif

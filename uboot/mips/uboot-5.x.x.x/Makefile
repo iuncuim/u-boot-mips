@@ -44,18 +44,18 @@ VENDOR=
 TOPDIR	:= $(shell if [ "$$PWD" != "" ]; then echo $$PWD; else pwd; fi)
 export	TOPDIR
 
-ifeq ($(MT7621_MP), y)
-CONFIG_CROSS_COMPILER_PATH ?= /opt/mips-2012.03/bin
-else
-CONFIG_CROSS_COMPILER_PATH ?= /opt/buildroot-gcc342/bin
-endif
-
 ifeq (include/config.mk,$(wildcard include/config.mk))
 # load ARCH, BOARD, and CPU configuration
 include include/config.mk
 export	ARCH CPU BOARD VENDOR SOC
 # load other configuration
 include $(TOPDIR)/config.mk
+
+ifeq ($(MT7621_MP), y)
+CONFIG_CROSS_COMPILER_PATH ?= $(TOPDIR)/../tools/mips-2012.03/bin
+else
+CONFIG_CROSS_COMPILER_PATH ?= $(TOPDIR)/../tools/buildroot-gcc342/bin
+endif
 
 ifndef CROSS_COMPILE
 ifeq ($(HOSTARCH),ppc)
