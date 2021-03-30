@@ -1,0 +1,11 @@
+*.o
+*.a
+.depend
+.tmp_config
+System.map
+autoconf.h
+mkimage
+u-boot
+u-boot.map
+u-boot.srec
+uboot.bin
