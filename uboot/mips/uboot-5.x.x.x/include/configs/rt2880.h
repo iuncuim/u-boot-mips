@@ -98,6 +98,8 @@ extern unsigned int  CFG_BLOCKSIZE;
 #define CONFIG_BAUDRATE		115200	/* 115200 by default */
 #endif
 
+#define CONFIG_AUTO_COMPLETE
+
 #define CONFIG_AUTOBOOT
 #define CONFIG_AUTOBOOT_KEYED
 #define CONFIG_AUTOBOOT_PROMPT		\
