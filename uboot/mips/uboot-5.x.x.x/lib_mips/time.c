@@ -79,7 +79,7 @@ __attribute__((nomips16)) void mdelay(unsigned long msec)
 		udelay(1000);
 }
 
-#if 0
+#if 1
 /*
  * This function is derived from PowerPC code (read timebase as long long).
  * On MIPS it just returns the timer value.

@@ -36,6 +36,9 @@
 #include <gpio.h>
 #include <cmd_tftpServer.h>
 
+#define MAX_DELAY_STOP_STR 32
+#define	endtick(seconds) (get_ticks() + (uint64_t)(seconds) * get_tbclk())
+
 DECLARE_GLOBAL_DATA_PTR;
 #undef DEBUG
 
@@ -87,6 +90,100 @@ extern void rt3883_gsw_init(void);
 extern void rt305x_esw_init(void);
 #endif
 extern void LANWANPartition(void);
+
+# if defined(CONFIG_AUTOBOOT_KEYED)
+static int abortboot_keyed(int bootdelay)
+{
+	int abort = 0;
+	uint64_t etime = endtick(bootdelay);
+	struct {
+		char *str;
+		u_int len;
+		int retry;
+	}
+	delaykey[] = {
+		{ .str = getenv("bootdelaykey"),  .retry = 1 },
+		{ .str = getenv("bootdelaykey2"), .retry = 1 },
+		{ .str = getenv("bootstopkey"),   .retry = 0 },
+		{ .str = getenv("bootstopkey2"),  .retry = 0 },
+	};
+
+	char presskey[MAX_DELAY_STOP_STR];
+	u_int presskey_len = 0;
+	u_int presskey_max = 0;
+	u_int i;
+
+#ifndef CONFIG_ZERO_BOOTDELAY_CHECK
+	if (bootdelay == 0)
+		return 0;
+#endif
+
+#  ifdef CONFIG_AUTOBOOT_PROMPT
+	printf(CONFIG_AUTOBOOT_PROMPT);
+#  endif
+
+#  ifdef CONFIG_AUTOBOOT_DELAY_STR
+	if (delaykey[0].str == NULL)
+		delaykey[0].str = CONFIG_AUTOBOOT_DELAY_STR;
+#  endif
+#  ifdef CONFIG_AUTOBOOT_DELAY_STR2
+	if (delaykey[1].str == NULL)
+		delaykey[1].str = CONFIG_AUTOBOOT_DELAY_STR2;
+#  endif
+#  ifdef CONFIG_AUTOBOOT_STOP_STR
+	if (delaykey[2].str == NULL)
+		delaykey[2].str = CONFIG_AUTOBOOT_STOP_STR;
+#  endif
+#  ifdef CONFIG_AUTOBOOT_STOP_STR2
+	if (delaykey[3].str == NULL)
+		delaykey[3].str = CONFIG_AUTOBOOT_STOP_STR2;
+#  endif
+
+	for (i = 0; i < sizeof(delaykey) / sizeof(delaykey[0]); i++) {
+		delaykey[i].len = delaykey[i].str == NULL ?
+				    0 : strlen(delaykey[i].str);
+		delaykey[i].len = delaykey[i].len > MAX_DELAY_STOP_STR ?
+				    MAX_DELAY_STOP_STR : delaykey[i].len;
+
+		presskey_max = presskey_max > delaykey[i].len ?
+				    presskey_max : delaykey[i].len;
+	}
+
+	/* In order to keep up with incoming data, check timeout only
+	 * when catch up.
+	 */
+	do {
+		if (tstc()) {
+			if (presskey_len < presskey_max) {
+				presskey[presskey_len++] = getc();
+			} else {
+				for (i = 0; i < presskey_max - 1; i++)
+					presskey[i] = presskey[i + 1];
+
+				presskey[i] = getc();
+			}
+		}
+
+		for (i = 0; i < sizeof(delaykey) / sizeof(delaykey[0]); i++) {
+			if (delaykey[i].len > 0 &&
+			    presskey_len >= delaykey[i].len &&
+				memcmp(presskey + presskey_len -
+					delaykey[i].len, delaykey[i].str,
+					delaykey[i].len) == 0) {
+
+				abort = 1;
+			}
+		}
+	} while (!abort && get_ticks() <= etime);
+
+#ifdef CONFIG_SILENT_CONSOLE
+	if (abort)
+		gd->flags &= ~GD_FLG_SILENT;
+#endif
+
+	return abort;
+}
+#endif
 
 extern struct eth_device* 	rt2880_pdev;
 
@@ -2164,24 +2261,29 @@ __attribute__((nomips16)) void board_init_r (gd_t *id, ulong dest_addr)
 	    s = getenv ("bootdelay");
 	    timer1 = s ? (int)simple_strtol(s, NULL, 10) : CONFIG_BOOTDELAY;
 	}
-
-	OperationSelect();   
-	while (timer1 > 0) {
-		--timer1;
-		/* delay 100 * 10ms */
-		for (i=0; i<100; ++i) {
-			if ((my_tmp = tstc()) != 0) {	/* we got a key press	*/
-				timer1 = 0;	/* no more delay	*/
-				BootType = getc();
-				if ((BootType < '0' || BootType > '5') && (BootType != '7') && (BootType != '8') && (BootType != '9'))
-					BootType = '3';
-				printf("\n\rYou choosed %c\n\n", BootType);
-				break;
+#if defined(CONFIG_AUTOBOOT_KEYED)
+	if (timer1 >= 0 && abortboot_keyed(timer1)) {
+#endif		
+		OperationSelect();   
+		while (timer1 > 0) {
+			--timer1;
+			/* delay 100 * 10ms */
+			for (i=0; i<100; ++i) {
+				if ((my_tmp = tstc()) != 0) {	/* we got a key press	*/
+					timer1 = 0;	/* no more delay	*/
+					BootType = getc();
+					if ((BootType < '0' || BootType > '5') && (BootType != '7') && (BootType != '8') && (BootType != '9'))
+						BootType = '3';
+					printf("\n\rYou choosed %c\n\n", BootType);
+					break;
+				}
+				udelay (10000);
 			}
-			udelay (10000);
+			printf ("\b\b\b%2d ", timer1);
 		}
-		printf ("\b\b\b%2d ", timer1);
+#if defined(CONFIG_AUTOBOOT_KEYED)
 	}
+#endif
 
 #if (CONFIG_COMMANDS & CFG_CMD_NET)
 	eth_initialize(gd->bd);

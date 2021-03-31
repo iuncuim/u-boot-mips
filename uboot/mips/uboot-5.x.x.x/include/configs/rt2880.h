@@ -98,11 +98,17 @@ extern unsigned int  CFG_BLOCKSIZE;
 #define CONFIG_BAUDRATE		115200	/* 115200 by default */
 #endif
 
-#define CONFIG_BOOTDELAY	5	/* autoboot after 5 seconds	*/
+#define CONFIG_AUTOBOOT
+#define CONFIG_AUTOBOOT_KEYED
+#define CONFIG_AUTOBOOT_PROMPT		\
+	"Type password to abort autoboot in %d seconds\n", bootdelay
+#define CONFIG_BOOTDELAY			3
+#define CONFIG_AUTOBOOT_STOP_STR2 "root" /*default password*/
 
 #define CONFIG_SERVERIP 192.168.1.2
 #define CONFIG_IPADDR 192.168.1.1
 #define CONFIG_ETHADDR "00:AA:BB:CC:DD:10"
+#define CONFIG_EXTRA_ENV_SETTINGS			"bootstopkey2=root\0"
 
 /* valid baudrates */
 #define CFG_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
