@@ -667,7 +667,7 @@ int raspi_erase(unsigned int offs, int len)
 		offs += spi_chip_info->sector_size;
 		len -= spi_chip_info->sector_size;
 		LED_ALERT_BLINK();
-		printf(".");
+		//printf(".");
 	}
 
 	if (spi_chip_info->addr4b)
@@ -1036,6 +1036,13 @@ int do_flerase (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		rcode = raspi_erase(0, CFG_BOOTLOADER_SIZE);
 		return rcode;
 	}
+	else if (strcmp(argv[1], "env") == 0) 
+	{
+		printf("\n Erase u-boot-env block !!\n");
+		printf("From 0x%X length 0x%X\n", CFG_ENV_ADDR - CFG_FLASH_BASE, CFG_ENV_SIZE);
+		rcode = raspi_erase(CFG_ENV_ADDR - CFG_FLASH_BASE, CFG_ENV_SIZE);	
+		return rcode;
+	}
 	else if (strcmp(argv[1], "all") == 0) {
 		rcode = raspi_erase(0, size);
 		return rcode;
@@ -1050,6 +1057,7 @@ U_BOOT_CMD(
 	"erase   - erase SPI FLASH memory\n",
 	"\nerase all\n    - erase all FLASH banks\n"
 	"erase uboot\n    - erase uboot block\n"
+	"erase env\n      - erase uboot-env block\n"
 	"erase linux\n    - erase linux kernel block\n"
 );
 
