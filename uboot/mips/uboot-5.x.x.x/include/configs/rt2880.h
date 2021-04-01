@@ -112,6 +112,12 @@ extern unsigned int  CFG_BLOCKSIZE;
 #define CONFIG_ETHADDR "00:AA:BB:CC:DD:10"
 #define CONFIG_EXTRA_ENV_SETTINGS			"bootstopkey2=root\0"
 
+#if (GPIO_WATCHDOG_TOGGLE >= 0)
+#define CONFIG_HW_WATCHDOG
+#define CONFIG_GPIO_WDT
+#define WDGRES_PIN	GPIO_WATCHDOG_TOGGLE
+#endif
+
 /* valid baudrates */
 #define CFG_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
 

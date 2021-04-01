@@ -31,6 +31,7 @@
 #include <common.h>
 #include "serial.h"
 #include <rt_mmap.h>
+#include <watchdog.h>
 
 #ifdef CONFIG_MIPS16
 #define cpu_to_le32(x) (x)
@@ -295,7 +296,15 @@ int serial_getc (void)
 	while (!(ra_inb(CR_UART_LSR) & LSR_DR));
 	return (char) (ra_inb(CR_UART_RBR) & 0xff);
 #else
-	while (!(LSR(CFG_RT2880_CONSOLE) & LSR_DR));
+	int i=0;
+	while (!(LSR(CFG_RT2880_CONSOLE) & LSR_DR)){
+#ifdef CONFIG_HW_WATCHDOG
+		if(i++ > 100000){
+			WATCHDOG_RESET();
+			i=0;
+		}
+#endif
+	}
 	return (char) RBR(CFG_RT2880_CONSOLE) & 0xff;
 #endif
 }

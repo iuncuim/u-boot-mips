@@ -523,6 +523,16 @@ int mtk_set_gpio_pin(unsigned short gpio_nr, unsigned int val)
 	return 0;
 }
 
+int mtk_gpio_toggle(unsigned short gpio_nr)
+{
+	int val;
+	if (!is_valid_gpio_nr(gpio_nr))
+		return -1;
+	val=mtk_get_gpio_pin(gpio_nr);
+	mtk_set_gpio_pin(gpio_nr,!val);
+	return 0;
+}
+
 void gpio_init(void)
 {
 	unsigned int gm = RALINK_GPIOMODE_I2C;
@@ -536,7 +546,9 @@ void gpio_init(void)
 	gm |= RALINK_GPIOMODE_UART2|RALINK_GPIOMODE_UART3|RALINK_GPIOMODE_WDT;
 #endif
 	ra_or(RT2880_GPIOMODE_REG, gm);
-
+#if (GPIO_WATCHDOG_TOGGLE >= 0)
+	mtk_set_gpio_dir(GPIO_WATCHDOG_TOGGLE, GPIO_DIR_OUTPUT);
+#endif
 	/* show all LED (flash after power on) */
 #if (GPIO_LED_ALL >= 0)
 	mtk_set_gpio_dir(GPIO_LED_ALL, GPIO_DIR_OUTPUT);

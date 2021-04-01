@@ -53,6 +53,10 @@ endif
 endif
 endif
 
+ifneq ($(GPIO_WATCHDOG_TOGGLE), -1)
+ OBJS   += gpio_wdt.o 
+endif
+
 ifeq ($(CFG_ENV_IS), IN_NAND)
 ifeq ($(MT7621_MP), y)
 OBJS	+= nand/mtk_nand.o nand/nand_base.o

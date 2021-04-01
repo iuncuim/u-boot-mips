@@ -89,4 +89,8 @@
 	void reset_4xx_watchdog(void);
 #endif
 
+#if defined(CONFIG_HW_WATCHDOG) && !defined(__ASSEMBLY__)
+	void hw_watchdog_init(void);
+#endif
+
 #endif /* _WATCHDOG_H_ */
