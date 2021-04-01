@@ -47,6 +47,7 @@ int do_tftpd(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 	if (DETECT_BTN_RESET())		/* RESET button */
 	{
+		/*
 		printf(" \n## Enter to Rescue Mode (%s) ##\n", "manual");
 		setenv("autostart", "no");
 		
@@ -58,9 +59,36 @@ int do_tftpd(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 			return 0;
 		}
 #endif
-		/* Wait forever for an image */
 		NetLoop(TFTPD);
 		perform_system_reset();
+		*/
+		printf("FACTORY RESET started \n");
+		int counter = 0;
+		while(mtk_get_gpio_pin(GPIO_BTN_RESET)==0){
+			udelay(100000);
+			if (counter < 30) {
+				mtk_gpio_toggle(GPIO_LED_ALERT1);
+				mtk_gpio_toggle(GPIO_LED_ALERT2);
+				mtk_gpio_toggle(GPIO_LED_ALERT3);
+			}
+			if(mtk_get_gpio_pin(GPIO_BTN_RESET)!=0){
+				mtk_set_gpio_pin(GPIO_LED_ALERT1,1);
+				mtk_set_gpio_pin(GPIO_LED_ALERT2,1);
+				mtk_set_gpio_pin(GPIO_LED_ALERT3,1);
+				break;
+			}
+			counter++;
+			if (counter >= 80)
+				break;
+		}
+		if (counter >= 30 && counter < 80)
+		{
+			printf("FACTORY RESET will be perfomed \n");
+			setenv("factory_reset", "yes");
+			saveenv();
+		} else {
+			printf("FACTORY RESET canceled \n");
+		}
 	}
 	else if (DETECT_BTN_WPS())	/* WPS button */
 	{
@@ -79,31 +107,29 @@ int do_tftpd(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 			perform_system_reset();
 		}
 	}
-	else
-	{
-		ulong addr_src;
-		
-		if (argc < 2) {
-			addr_src = load_addr;
-		} else {
-			addr_src = simple_strtoul(argv[1], NULL, 16);
-		}
-		
-		memset(&header, 0, sizeof(header));
-		if (verify_kernel_image(addr_src, NULL, NULL, NULL) <= 0) {
-			printf(" \n## Enter to Rescue Mode (%s) ##\n", "image error");
-			
-			LED_ALERT_ON();
-			
-			/* Wait forever for an image */
-			NetLoop(TFTPD);
-			perform_system_reset();
-		}
-		
-		LED_POWER_ON();
-		gpio_init_usb(0);
-		do_bootm(cmdtp, 0, argc, argv);
+	
+	ulong addr_src;
+	
+	if (argc < 2) {
+		addr_src = load_addr;
+	} else {
+		addr_src = simple_strtoul(argv[1], NULL, 16);
 	}
+	
+	memset(&header, 0, sizeof(header));
+	if (verify_kernel_image(addr_src, NULL, NULL, NULL) <= 0) {
+		printf(" \n## Enter to Rescue Mode (%s) ##\n", "image error");
+		
+		LED_ALERT_ON();
+		
+		/* Wait forever for an image */
+		NetLoop(TFTPD);
+		perform_system_reset();
+	}
+	
+	LED_POWER_ON();
+	gpio_init_usb(0);
+	do_bootm(cmdtp, 0, argc, argv);
 
 	return 0;
 }
