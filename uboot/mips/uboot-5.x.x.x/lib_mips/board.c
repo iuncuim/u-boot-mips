@@ -40,6 +40,7 @@
 #define	endtick(seconds) (get_ticks() + (uint64_t)(seconds) * get_tbclk())
 
 DECLARE_GLOBAL_DATA_PTR;
+cmd_tbl_t *p_gmdtp;//用于httpd.c中固件更新完后重启内核
 #undef DEBUG
 
 #define SDRAM_CFG1_REG RALINK_SYSCTL_BASE + 0x0304
@@ -195,6 +196,7 @@ extern ulong uboot_end;
 extern int usb_stor_curr_dev;
 #endif
 
+volatile int webfailsafe_upgrade_type;
 ulong monitor_flash_len;
 
 const char version_string[] =
@@ -1007,6 +1009,7 @@ __attribute__((nomips16)) void board_init_f(ulong bootflag)
 #define SEL_BOOT_FLASH                  3
 #define SEL_ENTER_CLI                   4
 #define SEL_LOAD_LINUX_WRITE_FLASH_BY_USB 5
+#define SEL_LOAD_LINUX_WRITE_FLASH_Httpd 6
 #define SEL_LOAD_BOOT_WRITE_FLASH_BY_SERIAL 7
 #define SEL_LOAD_BOOT_SDRAM             8
 #define SEL_LOAD_BOOT_WRITE_FLASH       9
@@ -1027,6 +1030,7 @@ void OperationSelect(void)
 #if defined (RALINK_USB) || defined (MTK_USB)
 	printf("   %d: Load %s code then write to Flash via %s.\n", SEL_LOAD_LINUX_WRITE_FLASH_BY_USB, "system", "USB Storage");
 #endif
+	printf("   %d: Load system code then write to Flash via Httpd.\n",SEL_LOAD_LINUX_WRITE_FLASH_Httpd);//6
 #ifdef RALINK_UPGRADE_BY_SERIAL
 	printf("   %d: Load %s code then write to Flash via %s.\n", SEL_LOAD_BOOT_WRITE_FLASH_BY_SERIAL, "U-Boot", "Serial");
 #endif
@@ -2272,7 +2276,7 @@ __attribute__((nomips16)) void board_init_r (gd_t *id, ulong dest_addr)
 				if ((my_tmp = tstc()) != 0) {	/* we got a key press	*/
 					timer1 = 0;	/* no more delay	*/
 					BootType = getc();
-					if ((BootType < '0' || BootType > '5') && (BootType != '7') && (BootType != '8') && (BootType != '9'))
+					if ((BootType < '0' || BootType > '5') && (BootType != '6') && (BootType != '7') && (BootType != '8') && (BootType != '9'))
 						BootType = '3';
 					printf("\n\rYou choosed %c\n\n", BootType);
 					break;
@@ -2362,6 +2366,12 @@ retry_kernel_tftp:
 			}
 			break;
 #endif // RALINK_CMDLINE //
+
+		case '6'://httpd
+			printf("web load\n");
+			NetLoopHttpd();
+			break;
+		
 
 #ifdef RALINK_UPGRADE_BY_SERIAL
 		case '7':

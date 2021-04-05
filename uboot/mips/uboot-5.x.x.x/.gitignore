@@ -11,3 +11,4 @@ u-boot.srec
 uboot.bin
 .config.old
 lxdialog
+.vscode
