@@ -965,7 +965,7 @@ void LANWANPartition(void)
 	IsSwitchVlanTableBusy();
 #endif
 #ifdef RALINK_EV_BOARD_PVLAN
-	printf("set LAN/WAN LLLLW\n");
+	//printf("set LAN/WAN LLLLW\n");
 	//LLLLW, wan at P4, ev board
 	//LAN/WAN ports as security mode
 	mii_mgr_write(31, 0x2004, 0xff0003);//port0
@@ -2175,7 +2175,7 @@ void setup_internal_gsw(void)
 	RALINK_REG(0xbe000060) &= ~(1 << 14); //set RGMII1 to Normal mode
 
 	// reset phy
-	printf("\n Reset MT7530\n");
+	//printf("\n Reset MT7530\n");
 	regValue = RALINK_REG(RT2880_RSTCTRL_REG);
 	regValue |= (1U<<2);
 	RALINK_REG(RT2880_RSTCTRL_REG) = regValue;

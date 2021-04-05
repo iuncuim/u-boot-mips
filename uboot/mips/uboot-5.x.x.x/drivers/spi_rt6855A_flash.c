@@ -128,7 +128,7 @@ void spic_init(void)
 	reg |= ((clk_div - 2) << 16);
 	ra_outl(SPI_REG_MASTER, reg);
 
-	printf("%s SPI flash driver, SPI clock: %dMHz\n", RLT_MTK_VENDOR_NAME, clk_sys / clk_div);
+	//printf("%s SPI flash driver, SPI clock: %dMHz\n", RLT_MTK_VENDOR_NAME, clk_sys / clk_div);
 
 #elif defined (RT6855_ASIC_BOARD) || defined (RT6855_FPGA_BOARD)
 	// enable SMC bank 0 alias addressing
@@ -601,7 +601,7 @@ struct chip_info *chip_prob(void)
 	raspi_read_devid(buf, 5);
 	jedec = (u32)((u32)(buf[1] << 24) | ((u32)buf[2] << 16) | ((u32)buf[3] << 8) | (u32)buf[4]);
 
-	printf("spi device id: %x %x %x %x\n", buf[0], buf[1], buf[2], buf[3]);
+	//printf("spi device id: %x %x %x %x\n", buf[0], buf[1], buf[2], buf[3]);
 
 	// FIXME, assign default as AT25D
 	weight = 0xffffffff;
@@ -611,7 +611,7 @@ struct chip_info *chip_prob(void)
 		if (info->id == buf[0]) {
 			if ((info->jedec_id & 0xffffff00) == jedec)
 			{
-				printf("find flash: %s\n", info->name);
+				printf("Find flash: %s\n", info->name);
 				return info;
 			}
 

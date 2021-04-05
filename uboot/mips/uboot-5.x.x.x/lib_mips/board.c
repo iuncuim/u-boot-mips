@@ -2141,11 +2141,11 @@ __attribute__((nomips16)) void board_init_r (gd_t *id, ulong dest_addr)
 		printf("%s %s%s %s\n", CHIP_TYPE, RALINK_REG(RT2880_CHIP_REV_ID_REG)>>16&0x1 ? "MT7621A" : "MT7621N", "S", GMAC_MODE);
 	}
 #endif
-	printf("DRAM_CONF_FROM: %s \n", RALINK_REG(RT2880_SYSCFG_REG)>>9&0x1 ? "Auto-Detection" : "EEPROM");
+	//printf("DRAM_CONF_FROM: %s \n", RALINK_REG(RT2880_SYSCFG_REG)>>9&0x1 ? "Auto-Detection" : "EEPROM");
 	printf("DRAM_TYPE: %s \n", RALINK_REG(RT2880_SYSCFG_REG)>>4&0x1 ? "DDR2": "DDR3");
-	printf("DRAM bus: %d bit\n", DRAM_BUS);
-	printf("Xtal Mode=%d OCP Ratio=%s\n", RALINK_REG(RT2880_SYSCFG_REG)>>6&0x7, RALINK_REG(RT2880_SYSCFG_REG)>>5&0x1 ? "1/4":"1/3");
-	printf("%s\n", FLASH_MSG);
+	//printf("DRAM bus: %d bit\n", DRAM_BUS);
+	//printf("Xtal Mode=%d OCP Ratio=%s\n", RALINK_REG(RT2880_SYSCFG_REG)>>6&0x7, RALINK_REG(RT2880_SYSCFG_REG)>>5&0x1 ? "1/4":"1/3");
+	//printf("%s\n", FLASH_MSG);
 	printf("%s\n", "Date:" __DATE__ "  Time:" __TIME__ );
 	printf("============================================ \n");
 	}
@@ -2197,8 +2197,8 @@ __attribute__((nomips16)) void board_init_r (gd_t *id, ulong dest_addr)
 		icache_ways *
 		icache_linesz;
 
-	printf("icache: sets:%d, ways:%d, linesz:%d, total:%d\n", 
-			icache_sets, icache_ways, icache_linesz, icache_size);
+	//printf("icache: sets:%d, ways:%d, linesz:%d, total:%d\n", 
+	//		icache_sets, icache_ways, icache_linesz, icache_size);
 
 	/*
 	 * Now probe the MIPS32 / MIPS64 data cache.
@@ -2215,17 +2215,17 @@ __attribute__((nomips16)) void board_init_r (gd_t *id, ulong dest_addr)
 		dcache_ways *
 		dcache_linesz;
 
-	printf("dcache: sets:%d, ways:%d, linesz:%d, total:%d \n", 
-			dcache_sets, dcache_ways, dcache_linesz, dcache_size);
+	//printf("dcache: sets:%d, ways:%d, linesz:%d, total:%d \n", 
+	//		dcache_sets, dcache_ways, dcache_linesz, dcache_size);
 
 #endif
 
-	debug("\n #### The CPU freq = %d MHZ #### \n", mips_cpu_feq/1000/1000);
+	//debug("\n #### The CPU freq = %d MHZ #### \n", mips_cpu_feq/1000/1000);
 
 #if defined (ON_BOARD_4096M_DRAM_COMPONENT) 
 	debug(" estimate memory size = %d Mbytes\n", gd->ram_size/1024/1024 + 64);
 #else
-	debug(" estimate memory size = %d Mbytes\n", gd->ram_size/1024/1024 );
+	//debug(" estimate memory size = %d Mbytes\n", gd->ram_size/1024/1024 );
 #endif
 
 	LED_HIDE_ALL();
@@ -2368,7 +2368,7 @@ retry_kernel_tftp:
 #endif // RALINK_CMDLINE //
 
 		case '6'://httpd
-			printf("web load\n");
+			//printf("web load\n");
 			NetLoopHttpd();
 			break;
 		
@@ -2819,7 +2819,7 @@ void config_usb_mtk_xhci(void)
 		RALINK_REG(0xbe1d0a40) = 0xffff0001;
 		RALINK_REG(0xbe1d0a44) = 0x60001;
 	} else if (regValue >=3 ) { // 40 Mhz
-		printf("\nConfig XHCI 40M PLL \n");
+		//printf("\nConfig XHCI 40M PLL \n");
 		RALINK_REG(0xbe1d0784) = 0x20201a;
 		RALINK_REG(0xbe1d0c20) = 0x80104;
 		RALINK_REG(0xbe1d0c1c) = 0x1818181e;
