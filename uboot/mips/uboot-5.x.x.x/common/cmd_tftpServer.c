@@ -64,14 +64,14 @@ int do_tftpd(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		*/
 		printf("FACTORY RESET started \n");
 		int counter = 0;
-		while(mtk_get_gpio_pin(GPIO_BTN_RESET)==0){
+		while(mtk_get_gpio_pin(GPIO_BTN_RESET)==1){
 			udelay(100000);
 			if (counter < 30) {
 				mtk_gpio_toggle(GPIO_LED_ALERT1);
 				mtk_gpio_toggle(GPIO_LED_ALERT2);
 				mtk_gpio_toggle(GPIO_LED_ALERT3);
 			}
-			if(mtk_get_gpio_pin(GPIO_BTN_RESET)!=0){
+			if(mtk_get_gpio_pin(GPIO_BTN_RESET)!=1){
 				mtk_set_gpio_pin(GPIO_LED_ALERT1,1);
 				mtk_set_gpio_pin(GPIO_LED_ALERT2,1);
 				mtk_set_gpio_pin(GPIO_LED_ALERT3,1);

@@ -4,6 +4,7 @@
 #include <rt_mmap.h>
 #include <configs/rt2880.h>
 #include <malloc.h>
+#include <watchdog.h>
 #include "bbu_spiflash.h"
 
 #if (CONFIG_COMMANDS & CFG_CMD_SPI) 
@@ -660,6 +661,9 @@ int raspi_erase(unsigned int offs, int len)
 
 	/* now erase those sectors */
 	while (len > 0) {
+#ifdef CONFIG_HW_WATCHDOG
+		WATCHDOG_RESET();
+#endif
 		if (raspi_erase_sector(offs)) {
 			ret = -1;
 			break;
@@ -774,6 +778,9 @@ int raspi_write(char *buf, unsigned int to, int len)
 
 	/* write everything in PAGESIZE chunks */
 	while (len > 0) {
+#ifdef CONFIG_HW_WATCHDOG
+		WATCHDOG_RESET();
+#endif
 		page_size = min(len, FLASH_PAGESIZE-page_offset);
 		page_offset = 0;
 

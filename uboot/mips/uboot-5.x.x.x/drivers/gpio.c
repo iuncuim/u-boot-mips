@@ -30,6 +30,7 @@
 
 #define GPIO_VAL_USB_5V_ON	1
 #define GPIO_VAL_BTN_PRESSED	0
+#define GPIO_VAL_RES_BTN_PRESSED	1
 
 #if defined(RT3052_MP2)
 
@@ -657,7 +658,7 @@ int DETECT_BTN_RESET(void)
 {
 	int key = 0;
 #if (GPIO_BTN_RESET >= 0)
-	if (mtk_get_gpio_pin(GPIO_BTN_RESET) == GPIO_VAL_BTN_PRESSED) {
+	if (mtk_get_gpio_pin(GPIO_BTN_RESET) == GPIO_VAL_RES_BTN_PRESSED) {
 		key = 1;
 		printf("RESET button pressed!\n");
 	}
